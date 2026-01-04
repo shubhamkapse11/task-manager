@@ -1,0 +1,9 @@
+npx sequelize-cli init  
+--- to generate squelize folder migrations and models
+
+npx sequelize-cli model:generate --name User --attributes name:string,email:string,password:string
+--- to create file in models
+
+npx sequelize-cli db:migrate  
+--- to create file in mysql
+
