@@ -9,9 +9,20 @@ const registerUser = async (req, res) => {
             return res.status(400).json(new ApiError(400, "All fields are required"));
         }
         const user = await User.create({ name, email, password });
-        res.status(201).json({ user });
+        const token = user.generateToken();
+        res.cookie("accessToken", token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
+        });
+        const withoutPassword = user.toJSON();
+        delete withoutPassword.password;
+        res.status(201).json({ user: withoutPassword, token });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({
+            "status": 500,
+            "message": error.message });
     }
 };
 
