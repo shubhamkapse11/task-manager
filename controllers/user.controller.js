@@ -5,6 +5,7 @@ const { ApiError } = require("../utils/ApiError");
 const registerUser = async (req, res) => {
     try {
         const { name, email, password } = req.body;
+        const cookie = req.cookies.accessToken;
         if (!name || !email || !password) {
             return res.status(400).json(new ApiError(400, "All fields are required"));
         }
@@ -41,6 +42,8 @@ const loginUser = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(401).json( new ApiError(401, "Invalid email or password"));
         }
+        const withoutPassword = user.toJSON();
+        delete withoutPassword.password;
         const token = user.generateToken();
         res.cookie("accessToken", token, {
             httpOnly: true,
@@ -48,7 +51,7 @@ const loginUser = async (req, res) => {
             sameSite: "strict",
             maxAge: 24 * 60 * 60 * 1000,
         });
-        res.status(200).json({ user });
+        res.status(200).json({ user: withoutPassword });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
